@@ -1,0 +1,93 @@
+#include <ESP32Servo.h>
+
+// Pin Definitions
+const int pirPin = 13;
+const int servo1Pin = 14;
+const int servo2Pin = 27;
+const int buzzerPin = 26;
+
+// Servo Objects
+Servo servo1;
+Servo servo2;
+
+// Debounce Time (ms)
+const unsigned long debounceTime = 1000;
+unsigned long lastMotionTime = 0;
+
+void setup() {
+  // Initialize pins
+  pinMode(pirPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+
+  // Attach servos to their respective pins
+  attachServos();
+
+  // Set initial servo positions
+  resetServos();
+
+  // Start Serial Communication for Debugging
+  Serial.begin(115200);
+}
+
+void loop() {
+  // Read PIR Sensor
+  int pirState = digitalRead(pirPin);
+
+  if (pirState == HIGH && millis() - lastMotionTime > debounceTime) {
+    // Update last motion detection time
+    lastMotionTime = millis();
+
+    // Perform Actions
+    handleMotionDetected();
+  } else if (pirState == LOW) {
+    Serial.println("Tiada pergerakan dikesan.");
+    delay(500);
+  }
+}
+
+// Attach Servos to Pins
+void attachServos() {
+  if (!servo1.attached()) {
+    servo1.attach(servo1Pin);
+  }
+  if (!servo2.attached()) {
+    servo2.attach(servo2Pin);
+  }
+}
+
+// Reset Servos to 0 degrees
+void resetServos() {
+  servo1.write(0);
+  servo2.write(0);
+}
+
+// Handle Motion Detected
+void handleMotionDetected() {
+  Serial.println("Pergerakan dikesan!");
+  
+  moveServos(90);
+  activateBuzzer();
+  
+  delay(1000);
+  
+  moveServos(0);
+  deactivateBuzzer();
+  
+  delay(1000);
+}
+
+// Move Servos to Specified Angle
+void moveServos(int angle) {
+  servo1.write(angle);
+  servo2.write(angle);
+}
+
+// Activate Buzzer
+void activateBuzzer() {
+  digitalWrite(buzzerPin, HIGH);
+}
+
+// Deactivate Buzzer
+void deactivateBuzzer() {
+  digitalWrite(buzzerPin, LOW);
+}
