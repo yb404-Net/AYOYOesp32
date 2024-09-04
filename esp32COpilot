@@ -1,0 +1,64 @@
+#include <ESP32Servo.h>  // Termasuk perpustakaan ESP32Servo
+
+// Definisi pin
+const int pirPin = 13;       // PIR sensor disambung ke pin 13
+const int servo1Pin = 14;    // Servo motor 1 disambung ke pin 14
+const int servo2Pin = 27;    // Servo motor 2 disambung ke pin 27
+const int buzzerPin = 26;    // Buzzer disambung ke pin 26
+
+// Objek servo
+Servo servo1;
+Servo servo2;
+
+void setup() {
+  // Tetapkan pin PIR sensor sebagai input
+  pinMode(pirPin, INPUT);
+  
+  // Tetapkan pin buzzer sebagai output
+  pinMode(buzzerPin, OUTPUT);
+  
+  // Sambungkan servo ke pin masing-masing
+  servo1.attach(servo1Pin);
+  servo2.attach(servo2Pin);
+  
+  // Tetapkan kedudukan awal servo ke 0 darjah
+  servo1.write(0);
+  servo2.write(0);
+
+  // Mulakan komunikasi serial untuk tujuan debugging
+  Serial.begin(115200);
+}
+
+void loop() {
+  // Baca status PIR sensor
+  int pirState = digitalRead(pirPin);
+
+  if (pirState == HIGH) {  // Jika pergerakan dikesan
+    // Cetak mesej debugging
+    Serial.println("Pergerakan dikesan!");
+
+    // Gerakkan kedua-dua servo ke 90 darjah
+    servo1.write(90);
+    servo2.write(90);
+    
+    // Aktifkan buzzer
+    digitalWrite(buzzerPin, HIGH);
+    
+    // Tunggu selama 1 saat
+    delay(1000);
+    
+    // Kembalikan kedua-dua servo ke 0 darjah
+    servo1.write(0);
+    servo2.write(0);
+    
+    // Matikan buzzer
+    digitalWrite(buzzerPin, LOW);
+    
+    // Tunggu selama 1 saat sebelum ulangi pemeriksaan
+    delay(1000);
+  } else {
+    // Jika tiada pergerakan, cetak mesej debugging
+    Serial.println("Tiada pergerakan dikesan.");
+    delay(500);  // Tambah sedikit delay untuk kurangkan penggunaan CPU
+  }
+}
